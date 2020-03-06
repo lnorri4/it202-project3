@@ -4,16 +4,132 @@
     <meta charset="UTF-8">
     <title>Title of the document</title>
 </head>
-<body>  
+<body>    
     
-    <canvas id="myCanvas" width="500" height="500" style="border:1px solid #000000;">
+<canvas id="myCanvas" width="400" height="500" style="border:1px solid #000000;">
 Your browser does not support the HTML5 canvas tag.
 </canvas>
-    c = document.getElementById("myCanvas");
+
+<script>        
+c = document.getElementById("myCanvas");
 var ctx = c.getContext("2d");
-ctx.font = "30px Arial";
-ctx.fillText("Luke Norris: Object catching game", 10, 25);  
-ctx.fillText("Main Menu", 150, 55);
+let grass_image = new Image();
+grass_image.src = "IMG/grass.jpeg";
+    
+//Check for arrow movements
+function check_for_arrows(){
+    document.addEventListener("keydown", function(event){
+      if (event.keyCode === 39) {
+           return -1;
+      }
+      if (event.keyCode === 37) {
+           return 1;
+      }
+    });
+}
+    
+//Create an array of five objects
+function create_array_of_objects(r_num){
+    let list_of_objects = [];
+    
+    for(let num = 0; num < 5; num++){
+        let object = {x: Math.floor((Math.random() * 200) + 100), y:0, radius: r_num};
+		//object.drawImage(document.getElementById("IMG/grass.jpeg"), r_num, r_num);
+        list_of_objects.push(object);        
+    }
+    return list_of_objects;
+}
+    
+function falling_status(object){
+        if(object["y"] == 0){
+            if(Math.floor((Math.random() * 10)) == 7){
+               object["y"] += 1;
+               }
+        }
+        else{
+            if(object["y"] > c.height + object["radius"]){
+               object["y"] = -object["radius"];
+            }
+            else{
+                object["y"] += 1;
+            }
+        }
+}
+    
+function give_game_over(score){
+     ctx.clearRect(0, 0, c.width, c.height);
+     ctx.drawImage(grass_image, 0, 0, 400, 500);
+     ctx.fillText("Game over: You are out of lives", 100, 100);
+     ctx.fillText("Your final Score is: " + score, 125, 150);
+}    
+    
+//let timer = 1; 
+let score = 0;
+let lives = 0;
+let level = 1;
+let h_objects = create_array_of_objects(2);
+let b_objects = create_array_of_objects(4);
+let player = {x: 200, y:450, radius: 10};
+const draw = () => {
+    ctx.clearRect(0, 0, c.width, c.height); //CLEAR
+    //if(timer >= 1000){
+        //level++;
+        //timer = 0;
+    //}
+    
+    //UPDATE VALUES----------------------------------------
+    for(let i = 0; i < 5; i++){
+        setTimeout(falling_status(b_objects[i]), 5000);
+        setTimeout(falling_status(h_objects[i]), 5000);
+    }
+	document.addEventListener("keydown", function(event){
+      if (event.keyCode === 39) {
+		 if(player["x"] == 100){ 
+            player["x"] = 100;
+		 }
+		 else{
+			 player["x"] += 0.01;	
+		 }
+		 
+	  }
+      
+      if (event.keyCode === 37){
+		 if(player["x"] == 400){
+            player["x"] = 400;
+	  	}
+		  else{
+			  player["x"] -= 0.01;
+		  }
+		}
+    });
+    
+    //if(document.onkeydown() == l){
+       //move_object["x"] -= 1;
+    //}
+    
+    //RENDER-------------------------------------------------------
+    ctx.drawImage(grass_image, 0, 0, 400, 500);
+    ctx.font = "20px Arial";
+    ctx.fillText("Score:" + score, 1, 425);
+    ctx.fillText("Lives:" + lives, 1, 450);      
+    ctx.fillText("Level:" + level, 1, 475); 
+    ctx.beginPath();
+    for(let i = 0; i < 5; i++){
+        ctx.arc(b_objects[i]["x"],b_objects[i]["y"],b_objects[i]["radius"], 0, Math.PI * 2);
+        ctx.arc(h_objects[i]["x"],h_objects[i]["y"],h_objects[i]["radius"], 0, Math.PI * 2);
+    }
+	ctx.arc(player["x"],player["y"],player["radius"], 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.fill();
+    window.requestAnimationFrame(draw);    
+    
+    
+}    
+grass_image.onload = function(){
+    draw();
+}
+
+</script>
         
 </body>
 
